@@ -1,23 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:techangles/models/article.dart';
-import 'package:techangles/screens/article_page.dart';
 
-class NewsTile extends StatelessWidget {
-  const NewsTile({super.key, required this.article});
+class NewsTile extends StatefulWidget {
+  const NewsTile({super.key, required this.article, required this.onPressed});
 
   final Article article;
+  final VoidCallback onPressed;
 
+  @override
+  State<NewsTile> createState() => _NewsTileState();
+}
+
+class _NewsTileState extends State<NewsTile> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        CupertinoPageRoute(
-          builder: (context) => ArticlePage(article: article),
-        ),
-      ),
+      onTap: widget.onPressed,
       child: Container(
         height: 120,
         decoration: BoxDecoration(
@@ -36,7 +35,7 @@ class NewsTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      article.title,
+                      widget.article.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -49,7 +48,7 @@ class NewsTile extends StatelessWidget {
                       height: 10,
                     ),
                     Text(
-                      article.content,
+                      widget.article.content,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -70,7 +69,7 @@ class NewsTile extends StatelessWidget {
                   height: 100,
                   width: 120,
                   fit: BoxFit.cover,
-                  imageUrl: article.imageUrl,
+                  imageUrl: widget.article.imageUrl,
                   placeholder: (context, url) =>
                       const CircularProgressIndicator(),
                 ),

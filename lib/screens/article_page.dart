@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:techangles/models/article.dart';
+import 'package:techangles/services/local_db.dart';
 
-class ArticlePage extends StatefulWidget {
+class ArticlePage extends ConsumerStatefulWidget {
   const ArticlePage({super.key, required this.article});
   final Article article;
 
   @override
-  State<ArticlePage> createState() => _ArticlePageState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _ArticlePageState();
 }
 
-class _ArticlePageState extends State<ArticlePage> {
+class _ArticlePageState extends ConsumerState<ArticlePage> {
   late final TextEditingController _editingController;
   ScrollController scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     _editingController = TextEditingController(text: widget.article.content);
+  }
+
+  void scrollToTop() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (scrollController.offset > 10) {
+      scrollController.animateTo(0,
+          duration: const Duration(
+            milliseconds: 500,
+          ),
+          curve: Curves.fastOutSlowIn);
+    }
   }
 
   @override
@@ -40,23 +53,15 @@ class _ArticlePageState extends State<ArticlePage> {
                   decoration: const InputDecoration(),
                   controller: _editingController,
                   maxLines: 300,
-                  onTapOutside: (event) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    if (scrollController.offset > 10) {
-                      scrollController.animateTo(0,
-                          duration: const Duration(
-                              milliseconds: 500), //duration of scroll
-                          curve: Curves.fastOutSlowIn);
-                    }
+                  onTapOutside: (event) => scrollToTop(),
+                  keyboardType: TextInputType.text,
+                  onSubmitted: (value) {
+                    scrollToTop();
+                    ref.read(localDbRepositoryProvider).updateArticle(
+                        widget.article.key,
+                        widget.article.copyWith(content: value));
                   },
                 ),
-                // Text(
-                //   widget.article.content,
-                //   style: const TextStyle(
-                //       fontWeight: FontWeight.w400,
-                //       fontSize: 18,
-                //       color: Color(0xff1D2939)),
-                // ),
               ],
             ),
           ),
